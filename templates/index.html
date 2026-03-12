@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SQL to RA Translator</title>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; margin: 0; padding: 40px; color: #1e293b; }
+        .wrapper { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+        .main-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        h1 { color: #2563eb; margin-top: 0; font-size: 1.5rem; }
+        textarea { width: 100%; height: 180px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-family: 'Fira Code', monospace; font-size: 14px; box-sizing: border-box; outline: none; }
+        textarea:focus { border-color: #2563eb; }
+        .btn { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; transition: 0.2s; }
+        .btn:hover { background: #1d4ed8; }
+        .result { margin-top: 30px; padding: 20px; background: #eff6ff; border-left: 4px solid #2563eb; border-radius: 4px; }
+        .ra-text { font-size: 1.4rem; font-family: serif; color: #1e3a8a; word-break: break-all; margin-top: 5px; }
+        .sidebar { background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; height: fit-content; }
+        .test-case { font-size: 12px; padding: 8px; cursor: pointer; border-bottom: 1px solid #f1f5f9; color: #64748b; }
+        .test-case:hover { background: #f8fafc; color: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="main-card">
+            <h1>SQL → Relational Algebra</h1>
+            
+            <form action="/" method="POST">
+                <textarea name="sql_query" id="sql_input" placeholder="Paste your SQL query here...">{{ sql_query }}</textarea>
+                <button type="submit" class="btn">Translate Now</button>
+            </form>
+
+            {% if ra_result %}
+            <div class="result">
+                <div style="font-weight: 700; color: #2563eb; font-size: 0.8rem; text-transform: uppercase;">RA Expression Result</div>
+                <div class="ra-text">{{ ra_result }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="sidebar">
+            <h3 style="font-size: 14px; margin-top: 0; color: #ef4444;">BRUTAL TEST SUITE</h3>
+            <div class="test-case" onclick="loadQuery(1)">Q6: Inner Join</div>
+            <div class="test-case" onclick="loadQuery(2)">Q16: IN Subquery</div>
+            <div class="test-case" onclick="loadQuery(3)">Q20: Double EXISTS</div>
+            <div class="test-case" onclick="loadQuery(4)">Q27: Deep Nesting</div>
+        </div>
+    </div>
+
+    <script>
+        const queries = {
+            1: "SELECT s.sid, d.dept_name FROM Student s JOIN Department d ON s.dept_id = d.dept_id",
+            2: "SELECT sname FROM Student WHERE sid IN (SELECT sid FROM Enroll WHERE grade = 'A')",
+            3: "SELECT s.sid FROM Student s WHERE EXISTS (SELECT 1 FROM Enroll e WHERE e.sid = s.sid AND EXISTS (SELECT 1 FROM Course c WHERE c.cid = e.cid))",
+            4: "SELECT s.sid FROM Student s WHERE NOT EXISTS (SELECT 1 FROM WorksOn w WHERE w.sid = s.sid AND w.pid IN (SELECT p.pid FROM Project p WHERE p.dept_id = s.dept_id UNION SELECT p2.pid FROM Project p2 JOIN Department d ON p2.dept_id = d.dept_id WHERE d.dept_name = 'CSE'))"
+        };
+        function loadQuery(id) { 
+            document.getElementById('sql_input').value = queries[id]; 
+        }
+    </script>
+</body>
+</html>
